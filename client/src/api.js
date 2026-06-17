@@ -19,4 +19,5 @@ export const api = {
   updateTicket: (id, patch) => request('PATCH', `/tickets/${encodeURIComponent(id)}`, patch),
   deleteTicket: (id) => request('DELETE', `/tickets/${encodeURIComponent(id)}`),
   whoami: () => request('GET', '/whoami'),
+  chat: (message, history) => request('POST', '/chat', { message, history }),
 };

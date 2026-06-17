@@ -21,6 +21,8 @@ through its REST API — Flightdeck holds no ticket data of its own.
 - For Kerberos auth (the default): a `curl` build with GSS-API/SPNEGO support
   (`curl -V | grep -i gss`) and a valid ticket in your local credential cache
   (`kinit you@YOUR.REALM`, verify with `klist`)
+- Optional, for the chat assistant: [Ollama](https://ollama.com) running locally with a
+  model pulled (default `gemma3`) — see [Chat assistant](#chat-assistant-local-llm) below.
 
 ## Setup
 
@@ -59,6 +61,40 @@ See `server/.env.example` for the full list with inline docs. The notable ones:
   workflow's exact status names.
 - Statuses and priorities are not hardcoded — they're derived from whatever your Jira
   instance actually returns.
+
+## Chat assistant (local LLM)
+
+The chat panel is backed by [Ollama](https://ollama.com) running Google's open-source
+Gemma model — entirely on your machine, no Docker, no cloud API key, no extra
+authentication. It's intentionally the lightest option: a single local daemon instead of
+a container runtime.
+
+```bash
+# once:
+curl -fsSL https://ollama.com/install.sh | sh   # or brew install ollama
+ollama pull gemma3
+
+# Ollama usually runs as a background service already; if not:
+ollama serve
+```
+
+The assistant has tool access to the same ticket operations the UI uses (list, get,
+create, update/transition, delete) — so it can answer questions about the live board
+*and* act on it ("move ENG-1 to In Review", "create a bug for the login redirect",
+"who's overloaded"). Every tool call goes through the exact same Jira auth you configured
+above (Kerberos or token); the LLM never talks to Jira directly and needs no credentials
+of its own.
+
+If Ollama isn't installed or running, the chat panel silently falls back to a small set
+of canned, regex-matched replies (blocked/overdue/workload/standup summaries, plus
+`create: <title>`) so the rest of the app is unaffected.
+
+Configure the model/host in `server/.env`:
+
+```
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=gemma3
+```
 
 ## Notes
 

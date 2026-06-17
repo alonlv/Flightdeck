@@ -36,9 +36,10 @@ export default function App() {
   const [saving, setSaving] = useState(false);
 
   const [chatMessages, setChatMessages] = useState([
-    { from: 'bot', text: "Hi! I'm your Flightdeck assistant — I read your live Jira board.\n\nTry: \"What's blocked?\", \"Who's overloaded?\", \"Standup summary\", or \"create: <ticket title>\"." },
+    { from: 'bot', text: "Hi! I'm your Flightdeck assistant — I read and act on your live Jira board.\n\nTry: \"What's blocked?\", \"Who's overloaded?\", \"create a ticket for...\", \"move ENG-1 to In Review\", or just ask me to explain a ticket." },
   ]);
   const [chatInput, setChatInput] = useState('');
+  const [chatPending, setChatPending] = useState(false);
   const dragRef = useRef(null);
 
   useEffect(() => saveJSON('fd.theme', theme), [theme]);
@@ -233,11 +234,27 @@ export default function App() {
     return "I can read your board. Try:\n• \"What's blocked?\"\n• \"Who's overloaded?\"\n• \"Show overdue\"\n• \"Standup summary\"\n• \"create: Fix login redirect\"";
   };
 
+  // Tries the local LLM assistant (Ollama + Gemma, full Jira read/write via tool-calling)
+  // first; if it's not running, falls back to the canned regex-based replies below so
+  // the chat panel still works with zero extra setup.
   const sendChat = async (preset) => {
     const text = (preset !== undefined ? preset : chatInput).trim();
     if (!text) return;
+    const history = chatMessages.slice(-12).map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: m.text }));
     setChatMessages((m) => [...m, { from: 'user', text }]);
     setChatInput('');
+    setChatPending(true);
+    try {
+      const { reply, mutated } = await api.chat(text, history);
+      setChatMessages((msgs) => [...msgs, { from: 'bot', text: reply }]);
+      if (mutated) refreshTickets();
+      return;
+    } catch {
+      // Local LLM unavailable - fall through to the built-in assistant below.
+    } finally {
+      setChatPending(false);
+    }
+
     const m = text.match(/^(create|add|new)\s*[:\-]?\s+(.+)$/i);
     if (m && m[2]) {
       const title = m[2].trim();
@@ -298,7 +315,7 @@ export default function App() {
       </div>
 
       {chatOpen && (
-        <ChatPanel messages={chatMessages} input={chatInput} setInput={setChatInput} onSend={sendChat} onToggle={() => setChatOpen(false)} />
+        <ChatPanel messages={chatMessages} input={chatInput} setInput={setChatInput} onSend={sendChat} onToggle={() => setChatOpen(false)} pending={chatPending} />
       )}
 
       {editing && (

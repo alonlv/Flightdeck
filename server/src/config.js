@@ -23,6 +23,11 @@ export const config = {
   defaultIssueType: process.env.JIRA_DEFAULT_ISSUETYPE || 'Task',
   port: Number(process.env.PORT || 8787),
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+
+  // Local LLM (chat assistant) - runs entirely on-machine via Ollama, no cloud call,
+  // no separate auth: tool calls go through the same Jira auth already configured above.
+  ollamaHost: process.env.OLLAMA_HOST || 'http://localhost:11434',
+  ollamaModel: process.env.OLLAMA_MODEL || 'gemma3',
 };
 
 export function assertConfigured() {

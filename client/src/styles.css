@@ -161,6 +161,7 @@ select, input, button, textarea { font-family: inherit; }
 .fd-msg { max-width: 84%; border-radius: 13px; padding: 9px 12px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 .fd-msg.user { align-self: flex-end; background: var(--accent); color: #fff; border: none; }
 .fd-msg.bot { align-self: flex-start; background: var(--panel2); color: var(--ink); border: 1px solid var(--border); }
+.fd-msg-pending { color: var(--faint); font-style: italic; }
 
 .fd-chat-suggestions { padding: 10px 14px 6px; display: flex; gap: 7px; flex-wrap: wrap; }
 .fd-suggestion-btn { font-size: 11.5px; color: var(--muted); background: var(--panel2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 11px; cursor: pointer; }
