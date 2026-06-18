@@ -31,14 +31,30 @@ cd server
 cp .env.example .env
 # edit .env: set JIRA_BASE_URL, JIRA_AUTH_MODE, JIRA_BASE_JQL, JIRA_SQUAD_LABELS, etc.
 npm install
-npm run dev      # starts the API on :8787
-
 cd ../client
 npm install
-npm run dev       # starts Vite on :5173, proxying /api to :8787
 ```
 
+Then, from the repo root, start everything — Ollama, the API server, and the client
+dev server — with one command:
+
+```bash
+./start.sh
+```
+
+It starts Ollama if it's installed but not already running, pulls the configured model
+on first run, then launches the server and client together. If Ollama isn't installed,
+it skips straight to the server/client and the chat panel falls back to canned replies.
+
 Open http://localhost:5173.
+
+Prefer separate terminals? You can still run each piece on its own:
+
+```bash
+ollama serve                # if not already running as a background service
+cd server && npm run dev    # API on :8787
+cd client && npm run dev    # Vite on :5173, proxying /api to :8787
+```
 
 ## Configuration (`server/.env`)
 
