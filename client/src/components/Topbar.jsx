@@ -1,8 +1,10 @@
 import { PlusIcon, ChatIcon, SearchIcon, SaveIcon } from './Icons.jsx';
+import AdvancedFilters from './AdvancedFilters.jsx';
 
 export default function Topbar({
   view, filteredCount, totalCount, onNewTicket, theme, toggleTheme, chatOpen, toggleChat, onRefresh, refreshing,
-  filters, setFilter, clearFilters, dirty, saveCurrentView, statusOptions, priorityOptions, ownerOptions, labelOptions,
+  filters, setFilter, setFilterMany, clearFilters, clearAdvancedFilters, dirty, saveCurrentView,
+  statusOptions, priorityOptions, ownerOptions, labelOptions, allLabels,
 }) {
   return (
     <header className="fd-header">
@@ -39,6 +41,7 @@ export default function Topbar({
         <FilterSelect label="Priority" value={filters.priority} onChange={(v) => setFilter('priority', v)} options={priorityOptions} />
         <FilterSelect label="Owner" value={filters.owner} onChange={(v) => setFilter('owner', v)} options={ownerOptions} wide />
         <FilterSelect label="Label" value={filters.label} onChange={(v) => setFilter('label', v)} options={labelOptions} />
+        <AdvancedFilters filters={filters} setFilterMany={setFilterMany} clearAdvancedFilters={clearAdvancedFilters} allLabels={allLabels} />
         <div className="fd-spacer" />
         {dirty && <button className="fd-clear-btn" onClick={clearFilters}>Clear</button>}
         <button className="fd-save-view-btn" onClick={saveCurrentView}>

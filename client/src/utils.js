@@ -12,24 +12,77 @@ export function dueLabel(ticket) {
   return ticket.overdue ? `${fmtDate(ticket.due)} · late` : fmtDate(ticket.due);
 }
 
-export const EMPTY_FILTERS = { search: '', status: 'All', priority: 'All', owner: 'All', squad: 'All', label: 'All' };
+export const EMPTY_FILTERS = {
+  search: '', status: 'All', priority: 'All', owner: 'All', squad: 'All', label: 'All',
+  // advanced (hidden behind the "More filters" popover) - additive, never required
+  blockedOnly: false, overdueOnly: false, unassignedOnly: false,
+  dueAfter: '', dueBefore: '', labelsAll: [], searchInDescription: false, sortBy: 'default',
+};
 
 export function applyFilters(list, f) {
   const q = (f.search || '').toLowerCase();
-  return list.filter((t) => {
-    if (q && !(t.title.toLowerCase().includes(q) || t.id.toLowerCase().includes(q))) return false;
+  const out = list.filter((t) => {
+    if (q) {
+      const hit = t.title.toLowerCase().includes(q) || t.id.toLowerCase().includes(q)
+        || (f.searchInDescription && (t.description || '').toLowerCase().includes(q));
+      if (!hit) return false;
+    }
     if (f.status !== 'All' && t.status !== f.status) return false;
     if (f.priority !== 'All' && t.priority !== f.priority) return false;
     if (f.owner !== 'All' && t.owner !== f.owner) return false;
     if (f.squad !== 'All' && t.squad !== f.squad) return false;
     if (f.label !== 'All' && !(t.labels || []).includes(f.label)) return false;
+    if (f.blockedOnly && !t.blocked) return false;
+    if (f.overdueOnly && !t.overdue) return false;
+    if (f.unassignedOnly && t.owner !== 'Unassigned') return false;
+    if (f.dueAfter && (!t.due || t.due < f.dueAfter)) return false;
+    if (f.dueBefore && (!t.due || t.due > f.dueBefore)) return false;
+    if (f.labelsAll && f.labelsAll.length && !f.labelsAll.every((l) => (t.labels || []).includes(l))) return false;
     return true;
   });
+  return sortTickets(out, f.sortBy);
+}
+
+export function sortTickets(list, sortBy) {
+  if (!sortBy || sortBy === 'default') return list;
+  const arr = [...list];
+  if (sortBy === 'priority') arr.sort((a, b) => (a.priorityRank ?? 999) - (b.priorityRank ?? 999));
+  else if (sortBy === 'due') arr.sort((a, b) => (a.due || '9999-99-99').localeCompare(b.due || '9999-99-99'));
+  else if (sortBy === 'updated') arr.sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+  return arr;
 }
 
 export function filtersDirty(f) {
-  return !!(f.search || f.status !== 'All' || f.priority !== 'All' || f.owner !== 'All' || f.squad !== 'All' || f.label !== 'All');
+  return !!(
+    f.search || f.status !== 'All' || f.priority !== 'All' || f.owner !== 'All' || f.squad !== 'All' || f.label !== 'All'
+    || advancedFiltersDirty(f)
+  );
 }
+
+export function advancedFiltersDirty(f) {
+  return !!(
+    f.blockedOnly || f.overdueOnly || f.unassignedOnly || f.dueAfter || f.dueBefore
+    || (f.labelsAll && f.labelsAll.length) || f.searchInDescription || (f.sortBy && f.sortBy !== 'default')
+  );
+}
+
+export function advancedFiltersCount(f) {
+  let n = 0;
+  if (f.blockedOnly) n++;
+  if (f.overdueOnly) n++;
+  if (f.unassignedOnly) n++;
+  if (f.dueAfter) n++;
+  if (f.dueBefore) n++;
+  if (f.labelsAll && f.labelsAll.length) n++;
+  if (f.searchInDescription) n++;
+  if (f.sortBy && f.sortBy !== 'default') n++;
+  return n;
+}
+
+export const EMPTY_ADVANCED = {
+  blockedOnly: false, overdueOnly: false, unassignedOnly: false,
+  dueAfter: '', dueBefore: '', labelsAll: [], searchInDescription: false, sortBy: 'default',
+};
 
 const STATUS_CATEGORY_ORDER = { new: 0, indeterminate: 1, done: 2 };
 
