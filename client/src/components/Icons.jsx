@@ -73,6 +73,19 @@ export function SaveIcon({ color = '#2a6fdb' }) {
   );
 }
 
+export function SlidersIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16">
+      <line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
+      <line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
+      <line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
+      <circle cx="6" cy="4" r="1.6" fill="currentColor" />
+      <circle cx="11" cy="8" r="1.6" fill="currentColor" />
+      <circle cx="5" cy="12" r="1.6" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function SendIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16">

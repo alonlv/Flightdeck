@@ -66,6 +66,25 @@ select, input, button, textarea { font-family: inherit; }
 .fd-clear-btn { font-size: 12.5px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 6px 4px; }
 .fd-save-view-btn { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--accent); background: var(--accentSoft); border: none; border-radius: 7px; padding: 7px 11px; cursor: pointer; }
 
+/* ---- advanced filters popover ---- */
+.fd-adv-wrap { position: relative; }
+.fd-adv-toggle { position: relative; }
+.fd-adv-toggle.active { border-color: var(--accent); color: var(--accent); }
+.fd-adv-badge { position: absolute; top: -5px; right: -5px; min-width: 16px; height: 16px; padding: 0 3px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.fd-adv-panel { position: absolute; top: calc(100% + 8px); left: 0; z-index: 30; width: 300px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 16px 40px rgba(10,15,30,0.18); padding: 14px; display: flex; flex-direction: column; gap: 14px; animation: fdPop 0.15s ease; }
+.fd-adv-panel-head { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 700; }
+.fd-adv-section { display: flex; flex-direction: column; gap: 8px; }
+.fd-adv-label { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--faint); }
+.fd-adv-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink); cursor: pointer; }
+.fd-adv-check input { cursor: pointer; }
+.fd-adv-daterow { display: flex; align-items: center; gap: 8px; }
+.fd-adv-date { flex: 1; font-size: 12.5px; border: 1px solid var(--border2); border-radius: 7px; padding: 6px 7px; background: var(--panel); color: var(--ink); }
+.fd-adv-date-sep { color: var(--faint); font-size: 12px; }
+.fd-adv-chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 110px; overflow-y: auto; }
+.fd-adv-chip { font-size: 11.5px; color: var(--muted); background: var(--panel2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; cursor: pointer; }
+.fd-adv-chip.active { color: var(--accent); background: var(--accentSoft); border-color: var(--accent); }
+.fd-adv-sort { width: 100%; }
+
 .fd-content { flex: 1; overflow: auto; min-height: 0; }
 
 /* ---- board ---- */

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { api } from './api.js';
 import { cssVarsFor, DEFAULT_ACCENT } from './theme.js';
-import { applyFilters, filtersDirty, sortStatuses, loadJSON, saveJSON, colorForName, EMPTY_FILTERS } from './utils.js';
+import { applyFilters, filtersDirty, sortStatuses, loadJSON, saveJSON, colorForName, EMPTY_FILTERS, EMPTY_ADVANCED } from './utils.js';
 import { initialsFor } from './clientColors.js';
 import Sidebar from './components/Sidebar.jsx';
 import Topbar from './components/Topbar.jsx';
@@ -73,9 +73,19 @@ export default function App() {
     return m;
   }, [meta.priorities]);
 
+  const priorityRankMap = useMemo(() => {
+    const m = {};
+    meta.priorities.forEach((p, i) => { m[p.name] = i; });
+    return m;
+  }, [meta.priorities]);
+
   const enriched = useMemo(
-    () => tickets.map((t) => ({ ...t, priorityColor: priorityColorMap[t.priority] || '#8a94a6' })),
-    [tickets, priorityColorMap]
+    () => tickets.map((t) => ({
+      ...t,
+      priorityColor: priorityColorMap[t.priority] || '#8a94a6',
+      priorityRank: priorityRankMap[t.priority] ?? 999,
+    })),
+    [tickets, priorityColorMap, priorityRankMap]
   );
 
   const filtered = useMemo(() => applyFilters(enriched, filters), [enriched, filters]);
@@ -83,7 +93,9 @@ export default function App() {
   const dirty = filtersDirty(filters);
 
   const setFilter = (key, val) => { setFilters((f) => ({ ...f, [key]: val })); setActiveViewId(null); };
+  const setFilterMany = (patch) => { setFilters((f) => ({ ...f, ...patch })); setActiveViewId(null); };
   const clearFilters = () => { setFilters(EMPTY_FILTERS); setActiveViewId(null); };
+  const clearAdvancedFilters = () => { setFilters((f) => ({ ...f, ...EMPTY_ADVANCED })); setActiveViewId(null); };
   const setSquad = (val) => setFilter('squad', val);
 
   const applyView = (v) => { setFilters({ ...EMPTY_FILTERS, ...v.filters }); setActiveViewId(v.id); };
@@ -297,12 +309,14 @@ export default function App() {
           onNewTicket={newTicket} theme={theme} toggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
           chatOpen={chatOpen} toggleChat={() => setChatOpen((c) => !c)}
           onRefresh={refreshTickets} refreshing={refreshing}
-          filters={filters} setFilter={setFilter} clearFilters={clearFilters} dirty={dirty}
+          filters={filters} setFilter={setFilter} setFilterMany={setFilterMany}
+          clearFilters={clearFilters} clearAdvancedFilters={clearAdvancedFilters} dirty={dirty}
           saveCurrentView={saveCurrentView}
           statusOptions={['All', ...statuses.map((s) => s.name)]}
           priorityOptions={['All', ...meta.priorities.map((p) => p.name)]}
           ownerOptions={['All', ...meta.engineers.map((e) => e.name)]}
           labelOptions={['All', ...meta.labels]}
+          allLabels={meta.labels}
         />
 
         {loadError && <div className="fd-error-banner">{loadError}</div>}
